@@ -1,0 +1,7 @@
+{
+  "name":"pixel-gpt-3",
+  "version":"3.0.0",
+  "type":"module",
+  "scripts":{"start":"node server.js"},
+  "dependencies":{"express":"^5.1.0","openai":"^5.0.0","multer":"^2.0.0"}
+}

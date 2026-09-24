@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pixel GPT 3.0</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/lib/common.min.js"></script>
+<style>
+:root{--bg:#070313;--side:#0d0820eF;--panel:#120b25;--panel2:#1a1033;--border:#34205b;--text:#f5efff;--muted:#a89abb;--p:#9b5cff;--c:#27d7ff}
+*{box-sizing:border-box}body{margin:0;height:100vh;overflow:hidden;color:var(--text);font:14px Arial,sans-serif;background:#070313}
+body:before{content:"";position:fixed;inset:-30%;z-index:-2;background:radial-gradient(circle at 20% 25%,#6d28d955,transparent 25%),radial-gradient(circle at 75% 30%,#c026d355,transparent 22%),radial-gradient(circle at 55% 80%,#2563eb55,transparent 28%),#070313;animation:galaxy 16s ease-in-out infinite alternate}
+body:after{content:"";position:fixed;inset:0;z-index:-1;opacity:.35;background-image:radial-gradient(#fff 1px,transparent 1px),radial-gradient(#b78cff 1px,transparent 1px);background-size:83px 83px,137px 137px;background-position:10px 20px,50px 70px}
+@keyframes galaxy{to{transform:scale(1.12) rotate(3deg)}}
+.app{display:flex;height:100vh}.sidebar{width:275px;background:var(--side);backdrop-filter:blur(18px);border-right:1px solid var(--border);padding:14px;display:flex;flex-direction:column;transition:.25s;z-index:20}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;padding:7px}.logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-size:23px;background:linear-gradient(135deg,#7c3aed,#d946ef,#06b6d4);box-shadow:0 0 30px #a855f766;animation:float 3s ease-in-out infinite alternate}@keyframes float{to{transform:translateY(-4px) rotate(3deg)}}
+.new{margin:15px 0;padding:12px;border:1px solid var(--border);background:linear-gradient(135deg,#21103f,#15102a);color:var(--text);border-radius:11px;cursor:pointer}.new:hover{border-color:var(--p)}
+.history{flex:1;overflow:auto}.historyTitle{color:var(--muted);font-size:11px;padding:10px 4px}.hist{display:flex;align-items:center;gap:7px;padding:10px;border-radius:9px;color:#c9bdd9;cursor:pointer}.hist:hover{background:#251541}.hist span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}.rename{opacity:.55;border:0;background:transparent;color:white;cursor:pointer}
+.sidebottom{display:grid;gap:8px}.sidebottom button,.top button{border:1px solid var(--border);background:#170d2c;color:var(--text);padding:9px;border-radius:9px;cursor:pointer}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}.top{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border);background:#0d071be8;backdrop-filter:blur(14px)}.topLeft{display:flex;gap:10px;align-items:center}.hamb{display:none}.online{font-size:11px;color:#53f29b;margin-top:3px}
+.chat{flex:1;overflow:auto;padding:30px max(15px,12%)}.welcome{text-align:center;margin-top:10vh}.biglogo{width:82px;height:82px;margin:auto;border-radius:25px;display:grid;place-items:center;font-size:38px;background:linear-gradient(135deg,#7c3aed,#d946ef,#06b6d4);box-shadow:0 0 55px #a855f766}.welcome h1{font-size:34px;margin:16px 0 8px}.welcome p{color:var(--muted)}.chips{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:20px}.chip{padding:9px 12px;border:1px solid var(--border);background:#160d2a;color:#d7c9eb;border-radius:20px;cursor:pointer}
+.msg{display:flex;gap:10px;margin-bottom:25px}.msg.user{justify-content:flex-end}.avatar{min-width:35px;height:35px;border-radius:11px;display:grid;place-items:center;background:#21143a}.user .avatar{order:2;background:linear-gradient(135deg,#7c3aed,#06b6d4)}.bubble{max-width:82%;padding:14px 16px;border-radius:16px;line-height:1.65;background:#100a20dd;border:1px solid var(--border);overflow-wrap:anywhere;box-shadow:0 8px 30px #0003}.user .bubble{background:linear-gradient(135deg,#5b21b6,#7c3aed);border:0}.bubble pre{background:#05030b;border:1px solid #3b2360;border-radius:11px;padding:14px;overflow:auto}.bubble code{font-family:Consolas,monospace}.copy{float:right;background:#251541;color:#eee;border:1px solid #503578;border-radius:6px;padding:4px 7px;cursor:pointer}.bubble table{border-collapse:collapse}.bubble th,.bubble td{border:1px solid var(--border);padding:6px}.bubble img{max-width:100%;border-radius:10px}
+.typing{display:none;align-items:center;gap:5px;color:var(--muted);margin-bottom:20px}.dot{width:7px;height:7px;border-radius:50%;background:#b18aff;animation:p 1s infinite}.dot:nth-child(2){animation-delay:.15s}.dot:nth-child(3){animation-delay:.3s}@keyframes p{30%{transform:translateY(-5px);opacity:1}0%,60%,100%{opacity:.3}}
+.bottom{border-top:1px solid var(--border);padding:12px max(10px,12%);background:#0a0516eF;backdrop-filter:blur(14px)}.drop{display:none;margin-bottom:8px;padding:10px;border:1px dashed var(--p);border-radius:10px;color:#d8c7ef}.drop.show{display:flex;align-items:center;gap:10px}.drop img{height:55px;border-radius:8px}.inputbox{display:flex;gap:7px;align-items:end;background:#130a27;border:1px solid var(--border);border-radius:16px;padding:8px}.inputbox.drag{border-color:#d946ef;box-shadow:0 0 25px #d946ef33}.inputbox textarea{flex:1;min-height:44px;max-height:170px;resize:none;background:transparent;border:0;outline:0;color:var(--text);font:14px Arial;padding:10px}.icon{border:0;background:transparent;color:#eee;font-size:20px;cursor:pointer;padding:8px}.send{width:46px;height:46px;border:0;border-radius:11px;background:linear-gradient(135deg,#7c3aed,#d946ef,#06b6d4);color:white;cursor:pointer;font-size:18px}.hint{text-align:center;color:#746485;font-size:10px;margin-top:7px}
+@media(max-width:700px){.sidebar{position:fixed;left:-285px;top:0;bottom:0}.sidebar.open{left:0;box-shadow:15px 0 50px #000b}.hamb{display:block}.chat{padding:20px 10px}.bottom{padding:9px}.bubble{max-width:90%}.welcome h1{font-size:27px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar" id="sidebar">
+<div class="brand"><div class="logo">✦</div>Pixel GPT 3.0</div>
+<button class="new" onclick="newChat()">＋ New chat</button>
+<div class="historyTitle">CHAT HISTORY</div><div class="history" id="history"></div>
+<div class="sidebottom"><button onclick="toggleTheme()">☀️ / 🌙 Theme</button><button onclick="clearHistory()">🗑️ Clear history</button></div>
+</aside>
+<main class="main">
+<header class="top"><div class="topLeft"><button class="hamb" onclick="toggleSide()">☰</button><div><b>Pixel GPT 3.0</b><div class="online">● AI Online</div></div></div><button onclick="newChat()">Clear</button></header>
+<section class="chat" id="chat">
+<div class="welcome" id="welcome"><div class="biglogo">✦</div><h1>Welcome to Pixel GPT</h1><p>Your colorful galaxy coding assistant.</p><div class="chips"><button class="chip" onclick="quick('Build a responsive HTML page')">💻 Build a website</button><button class="chip" onclick="quick('Debug this code: ')">🐞 Debug code</button><button class="chip" onclick="quick('Explain JavaScript promises simply')">🧠 Explain code</button></div></div>
+<div class="typing" id="typing">Pixel GPT is thinking <i class="dot"></i><i class="dot"></i><i class="dot"></i></div>
+</section>
+<footer class="bottom">
+<div class="drop" id="drop"><img id="preview"><span id="filename"></span><button class="icon" onclick="removeFile()">✕</button></div>
+<div class="inputbox" id="inputbox">
+<input id="file" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+<button class="icon" onclick="$('file').click()" title="Upload image">＋</button>
+<textarea id="input" placeholder="Message Pixel GPT..." rows="1"></textarea>
+<button class="icon" id="voice" title="Voice input">🎙️</button>
+<button class="icon" id="speak" title="Voice output">🔊</button>
+<button class="send" onclick="send()">➤</button>
+</div><div class="hint">Drop an image here • Enter to send • Shift+Enter for a new line</div>
+</footer>
+</main></div>
+<script>
+const $=id=>document.getElementById(id),chat=$('chat'),input=$('input'),typing=$('typing'),welcome=$('welcome'),box=$('inputbox');
+let messages=[],selectedFile=null,currentTitle="New chat",history=JSON.parse(localStorage.getItem("pixel3History")||"[]");
+marked.setOptions({breaks:true});
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function renderHistory(){$('history').innerHTML=history.slice().reverse().map((x,ri)=>{let i=history.length-1-ri;return `<div class="hist"><span onclick="loadChat(${i})">🌌 ${esc(x.title)}</span><button class="rename" onclick="renameChat(${i})">✎</button></div>`}).join("")}
+function botHTML(t){let d=document.createElement("div");d.innerHTML=DOMPurify.sanitize(marked.parse(t));d.querySelectorAll("pre code").forEach(c=>{let b=document.createElement("button");b.className="copy";b.textContent="Copy";b.onclick=()=>navigator.clipboard.writeText(c.innerText);c.parentElement.prepend(b);try{hljs.highlightElement(c)}catch{}});return d}
+function add(type,text){let m=document.createElement("div");m.className="msg "+type;let a=document.createElement("div");a.className="avatar";a.textContent=type==="user"?"👤":"✦";let b=document.createElement("div");b.className="bubble";if(type==="bot")b.appendChild(botHTML(text));else b.textContent=text;m.append(a,b);chat.insertBefore(m,typing);chat.scrollTop=chat.scrollHeight;return b}
+function quick(t){input.value=t;send()}
+async function send(){
+let text=input.value.trim();if(!text&&!selectedFile)return;
+welcome.style.display="none";
+if(selectedFile){await sendImage();return}
+add("user",text);messages.push({role:"user",content:text});input.value="";typing.style.display="flex";
+let bubble=null,full="";
+try{
+const r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages})});
+if(!r.ok)throw Error("Server error");
+bubble=add("bot","");let reader=r.body.getReader(),dec=new TextDecoder(),buf="";
+while(true){let {value,done}=await reader.read();if(done)break;buf+=dec.decode(value,{stream:true});let parts=buf.split("\\n\\n");buf=parts.pop();for(let part of parts){let line=part.split("\\n").find(x=>x.startsWith("data: "));if(!line)continue;let data=line.slice(6);if(data==="[DONE]")continue;let obj=JSON.parse(data);if(obj.error)throw Error(obj.error);full+=obj.delta||"";bubble.innerHTML="";bubble.appendChild(botHTML(full));chat.scrollTop=chat.scrollHeight}}
+messages.push({role:"assistant",content:full});saveCurrent();typing.style.display="none";
+}catch(e){typing.style.display="none";if(bubble){bubble.textContent="⚠️ "+e.message}else add("bot","⚠️ "+e.message)}
+}
+async function sendImage(){let f=selectedFile;add("user","🖼️ "+f.name);removeFile();typing.style.display="flex";try{let fd=new FormData();fd.append("image",f);let r=await fetch("/api/image",{method:"POST",body:fd}),d=await r.json();if(!r.ok)throw Error(d.error);typing.style.display="none";add("bot",d.reply);messages.push({role:"user",content:"[Image: "+f.name+"]"},{role:"assistant",content:d.reply});saveCurrent()}catch(e){typing.style.display="none";add("bot","⚠️ "+e.message)}}
+function saveCurrent(){if(!messages.length)return;currentTitle=(messages.find(x=>x.role==="user")?.content||"New chat").slice(0,42);let last=history.findIndex(x=>x.id===currentId);if(last<0){currentId=crypto.randomUUID();history.push({id:currentId,title:currentTitle,messages:[...messages]})}else{history[last].title=currentTitle;history[last].messages=[...messages]}history=history.slice(-60);localStorage.setItem("pixel3History",JSON.stringify(history));renderHistory()}
+let currentId=null;
+function newChat(){messages=[];currentId=null;document.querySelectorAll(".msg").forEach(x=>x.remove());welcome.style.display="block";input.focus();toggleSide(false)}
+function loadChat(i){let h=history[i];if(!h)return;currentId=h.id;currentTitle=h.title;messages=h.messages||[];document.querySelectorAll(".msg").forEach(x=>x.remove());welcome.style.display="none";messages.forEach(m=>add(m.role==="user"?"user":"bot",m.content));toggleSide(false)}
+function renameChat(i){let n=prompt("Rename chat:",history[i].title);if(n&&n.trim()){history[i].title=n.trim();localStorage.setItem("pixel3History",JSON.stringify(history));renderHistory()}}
+function clearHistory(){history=[];localStorage.removeItem("pixel3History");newChat();renderHistory()}
+function toggleSide(v){$('sidebar').classList.toggle("open",v===undefined?undefined:v)}
+function toggleTheme(){let t=document.body.dataset.theme==="light"?"dark":"light";document.body.dataset.theme=t;document.documentElement.style.setProperty("--bg",t==="light"?"#f5f3ff":"#070313");localStorage.setItem("pixelTheme",t)}
+if(localStorage.getItem("pixelTheme")==="light")toggleTheme();
+$('file').onchange=e=>setFile(e.target.files[0]);
+function setFile(f){if(!f)return;selectedFile=f;$('drop').classList.add("show");$('preview').src=URL.createObjectURL(f);$('filename').textContent=f.name}
+function removeFile(){selectedFile=null;$('file').value="";$('drop').classList.remove("show")}
+["dragenter","dragover"].forEach(e=>box.addEventListener(e,x=>{x.preventDefault();box.classList.add("drag")}));
+["dragleave","drop"].forEach(e=>box.addEventListener(e,x=>{x.preventDefault();box.classList.remove("drag")}));
+box.addEventListener("drop",e=>{let f=[...e.dataTransfer.files].find(x=>x.type.startsWith("image/"));if(f)setFile(f)});
+let recognition;if("SpeechRecognition"in window||"webkitSpeechRecognition"in window){let R=window.SpeechRecognition||window.webkitSpeechRecognition;recognition=new R();recognition.lang="en-US";recognition.onresult=e=>input.value=e.results[0][0].transcript;$("voice").onclick=()=>recognition.start()}else $("voice").onclick=()=>alert("Voice input is not supported in this browser.");
+$("speak").onclick=()=>{let last=[...document.querySelectorAll(".bot .bubble")].pop();if(last)speechSynthesis.speak(new SpeechSynthesisUtterance(last.innerText))};
+input.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
+renderHistory();
+</script>
+</body></html>
